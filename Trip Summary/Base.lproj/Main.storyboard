@@ -29,7 +29,7 @@
                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                                 <connections>
-                                                    <action selector="StartTripClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="jUf-n7-yWP"/>
+                                                    <action selector="startTripClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="jUf-n7-yWP"/>
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Current Speed" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="srt-3x-3m5" userLabel="CurrentSpeed">
@@ -75,7 +75,7 @@
                                                     <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </state>
                                                 <connections>
-                                                    <action selector="StopTripClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oiH-4L-DIg"/>
+                                                    <action selector="stopTripClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oiH-4L-DIg"/>
                                                 </connections>
                                             </button>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="km/h" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="z8P-6P-b3e" userLabel="CurrentSpeed">

@@ -40,18 +40,15 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     var currSpeedValue : Double = 0.0
     var previousSpeedValue : Double = 0.0
     var maxSpeedValue: Double = 0.0
-//    var totalSpeed : Double = 0.0
-    var avgSpeedvalue : Double =  0.0
-//    {
-//        self.totalSpeed / self.ticks
-//    }
-//
-    
+    var avgSpeedValue : Double =  0.0
+    var accelerationValue : Double = 0.0
+    var maxAccelerationValue : Double = 0.0
+
     let DISTANCE_UNIT_CONVERT : Double = 1000.0 // 1 km = 1000.0 m
     let TIME = 1 // every 1 sec, location is available to process
     let DISTANCE_UNIT = "km"
     let SPEED_UNIT = "km/h"
-    let ACCELERATION = "km/s^2"
+    let ACCELERATION_UNIT = "km/s^2"
     let SPEED_LIMIT : Double = 115.0
     
     let TRANSPARENT = UIColor(red: 0, green: 0, blue: 0, alpha: 0)
@@ -63,20 +60,20 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
-        SetupUI(isLoaded: true)
+        setupUI(isLoaded: true)
         locationManager.delegate = self
-        
     }
     
-    private func SetupUI(isLoaded : Bool){
+    private func setupUI(isLoaded : Bool){
         if(isLoaded){
-            SetWarningLabel(color: TRANSPARENT)
-            SetStatusLabel(color : DEACTIVE_COLOR)
+            setWarningLabel(color: TRANSPARENT)
+            setStatusLabel(color : DEACTIVE_COLOR)
         }
     }
     
     // Button events
-    @IBAction func StartTripClicked(_ sender: UIButton) {
+    @IBAction func startTripClicked(_ sender: UIButton) {
+        clearStats()
         //Instruct GPS to start gathering data
         locationManager.startUpdatingLocation()
         //Additionally get permission from user to use GPS
@@ -84,15 +81,34 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                 
         map.showsUserLocation = true
         
-        SetStatusLabel(color: ACTIVE_COLOR)
+        setStatusLabel(color: ACTIVE_COLOR)
     }
     
-    @IBAction func StopTripClicked(_ sender: UIButton) {
+    @IBAction func stopTripClicked(_ sender: UIButton) {
         locationManager.stopUpdatingLocation()
         map.showsUserLocation = false
         
-        SetStatusLabel(color: DEACTIVE_COLOR)
-        RestoreNormal()
+        setStatusLabel(color: DEACTIVE_COLOR)
+        restoreNormal()
+    }
+    
+    func clearStats() {
+        totalDistanceValue = 0.0
+        currSpeedValue = 0.0
+        previousSpeedValue = 0.0
+        maxSpeedValue = 0.0
+        avgSpeedValue =  0.0
+        accelerationValue = 0.0
+        maxAccelerationValue = 0.0
+        
+        setSpeedLabel()
+        setAvgSpeedLabel()
+        setMaxSpeedLabel()
+        setStatusLabel(color: DEACTIVE_COLOR)
+        setWarningLabel(color: TRANSPARENT)
+        setDistanceLabel(value: 0.0)
+        setMaxAccelerationLabel()
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -109,10 +125,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                     print("current : (\(currentLocation!.coordinate.latitude),\(currentLocation!.coordinate.longitude)")
                     print("previous : (\(previousLocation!.coordinate.latitude),\(previousLocation!.coordinate.longitude)")
                     
-                    SetSpeedLabel()
-                    CalculateTotalDistance(distance: distance)
-                    CalculateSpeed(distance: distance)
-                    SetRegion(location: location)
+                    setSpeedLabel()
+                    calculateTotalDistance(distance: distance)
+                    calculateSpeed(distance: distance)
+                    
+                    setRegion(location: location)
                     
                     previousLocation = currentLocation
                 }
@@ -124,67 +141,86 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
-    func CalculateTotalDistance( distance : Double ) {
+    func calculateTotalDistance( distance : Double ) {
         totalDistanceValue += distance
         
-        SetDistanceLabel(value: totalDistanceValue)
+        setDistanceLabel(value: totalDistanceValue)
     }
     
-   private func SetDistanceLabel(value : Double){
+   private func setDistanceLabel(value : Double){
         
         distance.text = String(format: "%.2f \(DISTANCE_UNIT)", value)
 //        print("Total Distance \(String(format: "%.2f", value)) \(DISTANCE_UNIT)")
     }
     
-    private func SetRegion(location : CLLocation) {
+    private func setRegion(location : CLLocation) {
         let region = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
         map.setRegion(region, animated: true)
     }
     
-    func CalculateSpeed(distance : Double) {
+    func calculateSpeed(distance : Double) {
         currSpeedValue = currentLocation!.speed *  ( 3.6 )
         previousSpeedValue = previousLocation!.speed * (3.6)
-
-        SetSpeedLabel()
+        
+        
+        
+        setSpeedLabel()
+        
+        avgSpeedValue = (avgSpeedValue + currSpeedValue) / 2.0
+        setAvgSpeedLabel()
+        
+//        maxAccelerationValue = abs()
         
 //        Max Speed
         if(currSpeedValue > maxSpeedValue ){
             maxSpeedValue = currSpeedValue
         }
+        setMaxSpeedLabel()
         
-        SetMaxSpeedLabel()
+        accelerationValue = abs(currSpeedValue - previousSpeedValue)
+        if(accelerationValue > maxAccelerationValue){
+            maxAccelerationValue = accelerationValue
+        }
+        setMaxAccelerationLabel()
+       
     }
     
-    private func SetSpeedLabel(){
-        
-        
+    func setAvgSpeedLabel() {
+        avgSpeed.text = String(format: "%.2f \(SPEED_UNIT)",avgSpeedValue)
+    }
+    
+    func setMaxAccelerationLabel() {
+        maxAcceleration.text = String(format: "%.2f \(ACCELERATION_UNIT)", maxAccelerationValue)
+    }
+    
+    private func setSpeedLabel(){
         if(currSpeedValue >= (SPEED_LIMIT)){
-            RaiseWarning()
+            saiseWarning()
             
         }else{
-            RestoreNormal()
+            restoreNormal()
         }
         currSpeed.text = String(format : "%.2f \(SPEED_UNIT)" , currSpeedValue)
     }
     
-    func SetMaxSpeedLabel() {
+    func setMaxSpeedLabel() {
         maxSpeed.text = String(format: "%.2f \(SPEED_UNIT)", maxSpeedValue)
     }
     
-    func RaiseWarning(){
+    func saiseWarning(){
         warningLabel.text = currSpeed.text!
-        SetWarningLabel(color: WANRNING_COLOR)
+        setWarningLabel(color: WANRNING_COLOR)
     }
-    func RestoreNormal() {
+    func restoreNormal() {
         warningLabel.text = ""
-        SetWarningLabel(color: TRANSPARENT)
+        setWarningLabel(color: TRANSPARENT)
     }
     
-    private func SetWarningLabel(color : UIColor) {
+    private func setWarningLabel(color : UIColor) {
         warningLabel.backgroundColor = color
     }
     
-    private func SetStatusLabel(color : UIColor){
+    private func setStatusLabel(color : UIColor){
         statusLabel.backgroundColor = color
     }
 }
