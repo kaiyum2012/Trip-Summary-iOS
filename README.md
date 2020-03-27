@@ -1,2 +1,2 @@
-# Lab5-ios
-Trip Summary iOS app - Lab 5 
+# ios-Application
+Trip Summary iOS app
